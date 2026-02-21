@@ -26,6 +26,14 @@ const App = () => {
 		if (!m || !q || isNaN(b) || b <= 0)
 			return "Please provide valid M, Q, and Bit Size.";
 
+		if (format === "2s_complement" && algo === "unsigned") {
+			return "2's Complement format cannot be used with Unsigned algorithm.";
+		}
+
+		if (format === "unsigned" && algo !== "unsigned") {
+			return "Unsigned format cannot be used with Signed algorithms.";
+		}
+
 		if (format === "decimal") {
 			const mVal = BigInt(m),
 				qVal = BigInt(q);
