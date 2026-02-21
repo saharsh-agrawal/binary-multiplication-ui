@@ -1,43 +1,80 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="%PUBLIC_URL%/favicon.ico" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+		<title>
+			Binary Multiplier Simulator | Booth's Algorithm & Signed Shift-Add
+		</title>
+		<meta
+			name="title"
+			content="Binary Multiplier Simulator | Booth's Algorithm & Signed Shift-Add"
+		/>
+		<meta
+			name="description"
+			content="Interactive online simulator for Booth's Multiplication Algorithm, Signed Shift-Add, and Unsigned Multipliers. Step-by-step register tracing for Computer Architecture students."
+		/>
+		<meta
+			name="keywords"
+			content="Booth's Algorithm Simulator, Binary Multiplication Step-by-Step, Signed Multiplication Calculator, Computer Architecture Tools, 2's Complement Multiplier, Online Education AI"
+		/>
+		<meta name="author" content="BinarySim" />
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+		<meta name="geo.region" content="US" />
+		<meta name="geo.placename" content="Global" />
+		<meta
+			name="DC.title"
+			content="Interactive Binary Multiplier Simulation"
+		/>
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-  </body>
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://your-domain.com/" />
+		<meta
+			property="og:title"
+			content="Binary Multiplier Simulator | Interactive Step-by-Step Logic"
+		/>
+		<meta
+			property="og:description"
+			content="Perform Booth's and Shift-Add multiplication with full register visibility. Supports Decimal, Unsigned, and 2's Complement inputs."
+		/>
+		<meta property="og:image" content="/preview-image.png" />
+
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:title" content="Binary Multiplier Simulator" />
+		<meta
+			property="twitter:description"
+			content="Master Booth's Algorithm with our interactive step-by-step register tracer."
+		/>
+
+		<script type="application/ld+json">
+			{
+				"@context": "https://schema.org",
+				"@type": "SoftwareApplication",
+				"name": "Binary Multiplier Simulator",
+				"operatingSystem": "Web",
+				"applicationCategory": "EducationalApplication",
+				"description": "A technical tool for simulating Booth's Multiplication Algorithm and Signed/Unsigned Shift-Add methods with step-by-step register tracing.",
+				"offers": {
+					"@type": "Offer",
+					"price": "0",
+					"priceCurrency": "USD"
+				}
+			}
+		</script>
+
+		<style>
+			/* Base styles to ensure no 'flash' of unstyled content */
+			body {
+				margin: 0;
+				background-color: #f4f7f6;
+				color: #2c3e50;
+			}
+		</style>
+	</head>
+	<body>
+		<noscript>You need to enable JavaScript to run this app.</noscript>
+		<div id="root"></div>
+	</body>
 </html>

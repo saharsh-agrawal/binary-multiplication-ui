@@ -92,40 +92,54 @@ const App = () => {
 		<div
 			style={{
 				maxWidth: "1000px",
-				margin: "40px auto",
-				fontFamily: "Segoe UI, sans-serif",
-				padding: "0 20px",
+				margin: "20px auto",
+				fontFamily: "Segoe UI, Roboto, Helvetica, Arial, sans-serif",
+				padding: "0 15px",
+				boxSizing: "border-box",
 			}}
 		>
-			<h1 style={{ textAlign: "center", color: "#2c3e50" }}>
+			<h1
+				style={{
+					textAlign: "center",
+					color: "#2c3e50",
+					fontSize: "clamp(1.5rem, 5vw, 2.5rem)",
+					marginBottom: "30px",
+				}}
+			>
 				Binary Multiplier Simulator
 			</h1>
 
-			{/* FORM SECTION */}
+			{/* FORM SECTION - Responsive Grid */}
 			<div
 				style={{
 					background: "#fff",
-					padding: "24px",
+					padding: "clamp(15px, 4vw, 24px)",
 					borderRadius: "12px",
-					boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+					boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
 					display: "grid",
-					gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+					gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
 					gap: "20px",
 					marginBottom: "30px",
 				}}
 			>
-				<div>
+				<div className="form-group">
 					<label
 						style={{
 							display: "block",
 							fontWeight: "bold",
 							marginBottom: "8px",
+							fontSize: "0.9rem",
 						}}
 					>
 						Input Format
 					</label>
 					<select
-						style={{ width: "100%", padding: "10px" }}
+						style={{
+							width: "100%",
+							padding: "12px",
+							borderRadius: "6px",
+							border: "1px solid #ddd",
+						}}
 						value={config.format}
 						onChange={(e) =>
 							setConfig({ ...config, format: e.target.value })
@@ -138,18 +152,24 @@ const App = () => {
 						</option>
 					</select>
 				</div>
-				<div>
+				<div className="form-group">
 					<label
 						style={{
 							display: "block",
 							fontWeight: "bold",
 							marginBottom: "8px",
+							fontSize: "0.9rem",
 						}}
 					>
 						Algorithm
 					</label>
 					<select
-						style={{ width: "100%", padding: "10px" }}
+						style={{
+							width: "100%",
+							padding: "12px",
+							borderRadius: "6px",
+							border: "1px solid #ddd",
+						}}
 						value={config.algo}
 						onChange={(e) =>
 							setConfig({ ...config, algo: e.target.value })
@@ -162,12 +182,13 @@ const App = () => {
 						<option value="unsigned">Unsigned Shift & Add</option>
 					</select>
 				</div>
-				<div>
+				<div className="form-group">
 					<label
 						style={{
 							display: "block",
 							fontWeight: "bold",
 							marginBottom: "8px",
+							fontSize: "0.9rem",
 						}}
 					>
 						Bit Size (n)
@@ -176,8 +197,10 @@ const App = () => {
 						type="number"
 						style={{
 							width: "100%",
-							padding: "10px",
+							padding: "12px",
 							boxSizing: "border-box",
+							borderRadius: "6px",
+							border: "1px solid #ddd",
 						}}
 						value={config.bits}
 						onChange={(e) =>
@@ -185,12 +208,13 @@ const App = () => {
 						}
 					/>
 				</div>
-				<div>
+				<div className="form-group">
 					<label
 						style={{
 							display: "block",
 							fontWeight: "bold",
 							marginBottom: "8px",
+							fontSize: "0.9rem",
 						}}
 					>
 						Multiplicand (M)
@@ -198,8 +222,10 @@ const App = () => {
 					<input
 						style={{
 							width: "100%",
-							padding: "10px",
+							padding: "12px",
 							boxSizing: "border-box",
+							borderRadius: "6px",
+							border: "1px solid #ddd",
 						}}
 						value={config.m}
 						onChange={(e) =>
@@ -207,12 +233,13 @@ const App = () => {
 						}
 					/>
 				</div>
-				<div>
+				<div className="form-group">
 					<label
 						style={{
 							display: "block",
 							fontWeight: "bold",
 							marginBottom: "8px",
+							fontSize: "0.9rem",
 						}}
 					>
 						Multiplier (Q)
@@ -220,8 +247,10 @@ const App = () => {
 					<input
 						style={{
 							width: "100%",
-							padding: "10px",
+							padding: "12px",
 							boxSizing: "border-box",
+							borderRadius: "6px",
+							border: "1px solid #ddd",
 						}}
 						value={config.q}
 						onChange={(e) =>
@@ -234,13 +263,14 @@ const App = () => {
 						onClick={calculate}
 						style={{
 							width: "100%",
-							padding: "12px",
+							padding: "14px",
 							background: "#3498db",
 							color: "#fff",
 							border: "none",
 							borderRadius: "6px",
 							cursor: "pointer",
 							fontWeight: "bold",
+							transition: "background 0.2s",
 						}}
 					>
 						Run Simulation
@@ -251,167 +281,259 @@ const App = () => {
 			{error && (
 				<div
 					style={{
-						background: "#f8d7da",
-						color: "#721c24",
+						background: "#fee2e2",
+						color: "#b91c1c",
 						padding: "15px",
 						borderRadius: "6px",
 						marginBottom: "20px",
+						border: "1px solid #fecaca",
 					}}
 				>
 					{error}
 				</div>
 			)}
 
-			{/* RESULTS SECTION - Now uses snapshot data */}
 			{data && (
-				<div style={{ overflowX: "auto" }}>
-					<h2 style={{ color: "#7f8c8d", fontSize: "1.1rem" }}>
-						Result for {data.snapshotAlgo.replace("_", " ")} (
-						{data.snapshotBits} bits)
-					</h2>
-					<table
+				<div style={{ animation: "fadeIn 0.5s ease-in" }}>
+					<h2
 						style={{
-							width: "100%",
-							borderCollapse: "collapse",
-							background: "#fff",
-							borderRadius: "8px",
-							overflow: "hidden",
-							boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+							color: "#7f8c8d",
+							fontSize: "1.1rem",
+							marginBottom: "10px",
 						}}
 					>
-						<thead style={{ background: "#34495e", color: "#fff" }}>
-							<tr>
-								<th style={{ padding: "12px" }}>Iter</th>
-								<th style={{ padding: "12px" }}>Step/Action</th>
-								<th style={{ padding: "12px" }}>
-									Accumulator (A)
-								</th>
-								<th style={{ padding: "12px" }}>
-									Multiplier (Q)
-								</th>
-								{data.snapshotAlgo === "booth" && (
-									<th style={{ padding: "12px" }}>Q₋₁</th>
-								)}
-							</tr>
-						</thead>
-						<tbody>
-							{data.steps.map((s, i) => (
-								<tr
-									key={i}
-									style={{
-										borderBottom: "1px solid #eee",
-										background: s.action.includes("Shift")
-											? "#fcfcfc"
-											: "#fff",
-									}}
-								>
-									<td
+						Step-by-Step:{" "}
+						{data.snapshotAlgo.replace("_", " ").toUpperCase()} (
+						{data.snapshotBits} bits)
+					</h2>
+
+					{/* Table Container for Horizontal Scrolling on Mobile */}
+					<div
+						style={{
+							overflowX: "auto",
+							background: "#fff",
+							borderRadius: "12px",
+							boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+							WebkitOverflowScrolling: "touch",
+						}}
+					>
+						<table
+							style={{
+								width: "100%",
+								borderCollapse: "collapse",
+								minWidth: "600px",
+							}}
+						>
+							<thead
+								style={{ background: "#2c3e50", color: "#fff" }}
+							>
+								<tr>
+									<th
 										style={{
-											padding: "12px",
+											padding: "15px",
 											textAlign: "center",
 										}}
 									>
-										{s.iter}
-									</td>
-									<td
+										Iter
+									</th>
+									<th
 										style={{
-											padding: "12px",
-											fontWeight: s.action.includes("=")
-												? "bold"
-												: "normal",
-											color: s.action.includes("=")
-												? "#e67e22"
-												: "#2c3e50",
+											padding: "15px",
+											textAlign: "left",
 										}}
 									>
-										{s.action}
-									</td>
-									<td
+										Action
+									</th>
+									<th
 										style={{
-											padding: "12px",
-											fontFamily: "monospace",
-											fontSize: "1.1em",
-											letterSpacing: "1px",
+											padding: "15px",
+											textAlign: "left",
 										}}
 									>
-										{s.A}
-									</td>
-									<td
+										Accumulator (A)
+									</th>
+									<th
 										style={{
-											padding: "12px",
-											fontFamily: "monospace",
-											fontSize: "1.1em",
-											letterSpacing: "1px",
+											padding: "15px",
+											textAlign: "left",
 										}}
 									>
-										{s.Q}
-									</td>
+										Multiplier (Q)
+									</th>
 									{data.snapshotAlgo === "booth" && (
+										<th
+											style={{
+												padding: "15px",
+												textAlign: "center",
+											}}
+										>
+											Q₋₁
+										</th>
+									)}
+								</tr>
+							</thead>
+							<tbody>
+								{data.steps.map((s, i) => (
+									<tr
+										key={i}
+										style={{
+											borderBottom: "1px solid #edf2f7",
+											background: s.action.includes(
+												"Shift",
+											)
+												? "#f8fafc"
+												: "#fff",
+										}}
+									>
 										<td
 											style={{
 												padding: "12px",
 												textAlign: "center",
-												fontFamily: "monospace",
+												color: "#718096",
 											}}
 										>
-											{s.q_minus_1}
+											{s.iter}
 										</td>
-									)}
-								</tr>
-							))}
-						</tbody>
-					</table>
+										<td
+											style={{
+												padding: "12px",
+												fontWeight: s.action.includes(
+													"=",
+												)
+													? "bold"
+													: "normal",
+												color: s.action.includes("=")
+													? "#d97706"
+													: "#2d3748",
+											}}
+										>
+											{s.action}
+										</td>
+										<td
+											style={{
+												padding: "12px",
+												fontFamily:
+													'"Courier New", Courier, monospace',
+												fontWeight: "600",
+											}}
+										>
+											{s.A}
+										</td>
+										<td
+											style={{
+												padding: "12px",
+												fontFamily:
+													'"Courier New", Courier, monospace',
+												fontWeight: "600",
+											}}
+										>
+											{s.Q}
+										</td>
+										{data.snapshotAlgo === "booth" && (
+											<td
+												style={{
+													padding: "12px",
+													textAlign: "center",
+													fontFamily: "monospace",
+												}}
+											>
+												{s.q_minus_1}
+											</td>
+										)}
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
 
+					{/* ANALYSIS CARD - Responsive Flex/Grid */}
 					<div
 						style={{
 							marginTop: "30px",
 							padding: "24px",
 							background:
 								data.resDec === data.expected
-									? "#d4edda"
-									: "#f8d7da",
+									? "#f0fdf4"
+									: "#fef2f2",
 							borderRadius: "12px",
 							border: "1px solid",
+							borderColor:
+								data.resDec === data.expected
+									? "#bbf7d0"
+									: "#fecaca",
 						}}
 					>
-						<h3 style={{ marginTop: 0 }}>Result Analysis</h3>
+						<h3 style={{ marginTop: 0, color: "#1f2937" }}>
+							Validation Results
+						</h3>
 						<div
 							style={{
-								display: "grid",
-								gridTemplateColumns: "1fr 1fr",
+								display: "flex",
+								flexWrap: "wrap",
+								justifyContent: "space-between",
 								gap: "20px",
 							}}
 						>
-							<div>
-								<p>
-									<strong>Final Binary (AQ):</strong>{" "}
-									<span style={{ fontFamily: "monospace" }}>
-										{data.fullBin}
+							<div style={{ flex: "1 1 300px" }}>
+								<p style={{ margin: "8px 0" }}>
+									<strong>Final Binary Product (AQ):</strong>
+								</p>
+								<p
+									style={{
+										fontFamily: "monospace",
+										fontSize: "1.2rem",
+										wordBreak: "break-all",
+										color: "#4a5568",
+									}}
+								>
+									{data.fullBin}
+								</p>
+								<p style={{ margin: "8px 0" }}>
+									<strong>Decimal Conversion:</strong>{" "}
+									<span
+										style={{
+											fontSize: "1.2rem",
+											fontWeight: "bold",
+										}}
+									>
+										{data.resDec}
 									</span>
 								</p>
-								<p>
-									<strong>Calculated Decimal:</strong>{" "}
-									{data.resDec}
-								</p>
 							</div>
-							<div style={{ textAlign: "right" }}>
-								<p>
-									<strong>Actual M × Q:</strong>{" "}
+							<div
+								style={{
+									flex: "1 1 200px",
+									textAlign:
+										window.innerWidth > 600
+											? "right"
+											: "left",
+								}}
+							>
+								<p style={{ margin: "8px 0" }}>
+									<strong>Theoretical (M × Q):</strong>
+								</p>
+								<p
+									style={{
+										fontSize: "1.2rem",
+										color: "#4a5568",
+									}}
+								>
 									{data.expected}
 								</p>
 								<p
 									style={{
-										fontSize: "1.2em",
-										fontWeight: "bold",
+										fontSize: "1.3rem",
+										fontWeight: "900",
 										color:
 											data.resDec === data.expected
-												? "#155724"
-												: "#721c24",
+												? "#16a34a"
+												: "#dc2626",
+										marginTop: "15px",
 									}}
 								>
 									{data.resDec === data.expected
-										? "✅ MATCHED"
-										: "❌ CALCULATION ERROR"}
+										? "✓ VERIFIED"
+										: "✗ ERROR"}
 								</p>
 							</div>
 						</div>
