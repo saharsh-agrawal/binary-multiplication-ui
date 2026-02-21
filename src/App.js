@@ -8,6 +8,7 @@ import {
 } from "./utils/multiplication";
 
 const App = () => {
+	// config handles the "draft" state of the form
 	const [config, setConfig] = useState({
 		m: "18",
 		q: "-46",
@@ -15,6 +16,7 @@ const App = () => {
 		format: "decimal",
 		algo: "booth",
 	});
+	// data handles the "snapshot" of the last calculation
 	const [data, setData] = useState(null);
 	const [error, setError] = useState("");
 
@@ -75,11 +77,14 @@ const App = () => {
 		if (config.algo !== "unsigned" && fullBin[0] === "1")
 			resDec -= 1n << BigInt(b * 2);
 
+		// Save the configuration used for THIS specific run
 		setData({
 			steps,
 			fullBin,
 			resDec: resDec.toString(),
 			expected: (mVal * qVal).toString(),
+			snapshotAlgo: config.algo,
+			snapshotBits: b,
 		});
 	};
 
@@ -96,6 +101,7 @@ const App = () => {
 				Binary Multiplier Simulator
 			</h1>
 
+			{/* FORM SECTION */}
 			<div
 				style={{
 					background: "#fff",
@@ -256,8 +262,13 @@ const App = () => {
 				</div>
 			)}
 
+			{/* RESULTS SECTION - Now uses snapshot data */}
 			{data && (
 				<div style={{ overflowX: "auto" }}>
+					<h2 style={{ color: "#7f8c8d", fontSize: "1.1rem" }}>
+						Result for {data.snapshotAlgo.replace("_", " ")} (
+						{data.snapshotBits} bits)
+					</h2>
 					<table
 						style={{
 							width: "100%",
@@ -278,7 +289,7 @@ const App = () => {
 								<th style={{ padding: "12px" }}>
 									Multiplier (Q)
 								</th>
-								{config.algo === "booth" && (
+								{data.snapshotAlgo === "booth" && (
 									<th style={{ padding: "12px" }}>Q₋₁</th>
 								)}
 							</tr>
@@ -335,7 +346,7 @@ const App = () => {
 									>
 										{s.Q}
 									</td>
-									{config.algo === "booth" && (
+									{data.snapshotAlgo === "booth" && (
 										<td
 											style={{
 												padding: "12px",
