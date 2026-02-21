@@ -8,126 +8,124 @@ import {
 } from "./utils/multiplication";
 
 const App = () => {
-	const [inputs, setInputs] = useState({
+	const [config, setConfig] = useState({
 		m: "18",
 		q: "-46",
-		bits: 8,
+		bits: "8",
 		format: "decimal",
 		algo: "booth",
 	});
-	const [results, setResults] = useState(null);
+	const [data, setData] = useState(null);
 	const [error, setError] = useState("");
 
-	const parseInput = (val, format, bits) => {
-		if (format === "decimal") return parseInt(val);
-		if (format === "unsigned") return parseInt(val, 2);
-		if (format === "2s_complement") {
-			let res = parseInt(val, 2);
-			if (val[0] === "1" && val.length === bits) res -= Math.pow(2, bits);
-			return res;
-		}
-		return 0;
-	};
-
 	const validate = () => {
-		const { m, q, bits, format, algo } = inputs;
-		if (!m || !q) return "Please enter both numbers.";
+		const { m, q, bits, format, algo } = config;
+		const b = parseInt(bits);
+		if (!m || !q || isNaN(b) || b <= 0)
+			return "Please provide valid M, Q, and Bit Size.";
 
-		// Check for unsigned constraints
-		if (algo === "unsigned" || format === "unsigned") {
-			if (parseInt(m) < 0 || parseInt(q) < 0)
-				return "Unsigned mode does not support negative numbers.";
-		}
-
-		// Check bit length for binary inputs
-		if (format !== "decimal") {
-			if (m.length > bits || q.length > bits)
-				return `Inputs exceed ${bits} bits.`;
-			if (!/^[01]+$/.test(m) || !/^[01]+$/.test(q))
-				return "Binary formats must only contain 0 and 1.";
+		if (format === "decimal") {
+			const mVal = BigInt(m),
+				qVal = BigInt(q);
+			const limit =
+				algo === "unsigned"
+					? 2n ** BigInt(b) - 1n
+					: 2n ** BigInt(b - 1) - 1n;
+			const min = algo === "unsigned" ? 0n : -(2n ** BigInt(b - 1));
+			if (mVal > limit || mVal < min || qVal > limit || qVal < min)
+				return `Values exceed range for ${b}-bit ${algo === "unsigned" ? "Unsigned" : "Signed"} format.`;
 		} else {
-			// Check if decimal fits in bits
-			const maxSigned = Math.pow(2, bits - 1) - 1;
-			const minSigned = -Math.pow(2, bits - 1);
-			const mNum = parseInt(m);
-			const qNum = parseInt(q);
-			if (
-				algo !== "unsigned" &&
-				(mNum > maxSigned ||
-					mNum < minSigned ||
-					qNum > maxSigned ||
-					qNum < minSigned)
-			) {
-				return `Decimal values exceed range for signed ${bits}-bit (${minSigned} to ${maxSigned}).`;
-			}
+			if (!/^[01]+$/.test(m) || !/^[01]+$/.test(q))
+				return "Binary inputs must only contain 0 and 1.";
+			if (m.length > b || q.length > b)
+				return `Binary string length exceeds ${b} bits.`;
 		}
 		return null;
 	};
 
-	const handleCalculate = () => {
+	const calculate = () => {
 		const err = validate();
 		if (err) {
 			setError(err);
-			setResults(null);
+			setData(null);
 			return;
 		}
 		setError("");
 
-		const mVal = parseInput(inputs.m, inputs.format, inputs.bits);
-		const qVal = parseInput(inputs.q, inputs.format, inputs.bits);
+		const b = parseInt(config.bits);
+		const parse = (v) =>
+			config.format === "decimal"
+				? BigInt(v)
+				: config.format === "unsigned" || v[0] === "0" || v.length < b
+					? BigInt("0b" + v)
+					: BigInt("0b" + v) - (1n << BigInt(b));
 
-		let steps;
-		if (inputs.algo === "booth") steps = runBooth(mVal, qVal, inputs.bits);
-		else if (inputs.algo === "signed_shift")
-			steps = runSignedShiftAdd(mVal, qVal, inputs.bits);
-		else steps = runUnsignedShiftAdd(mVal, qVal, inputs.bits);
+		const mVal = parse(config.m),
+			qVal = parse(config.q);
+		let steps =
+			config.algo === "booth"
+				? runBooth(mVal, qVal, b)
+				: config.algo === "signed_shift"
+					? runSignedShiftAdd(mVal, qVal, b)
+					: runUnsignedShiftAdd(mVal, qVal, b);
 
-		const lastStep = steps[steps.length - 1];
-		const finalBin = lastStep.A + lastStep.Q;
-		let decimalRes = BigInt("0b" + finalBin);
-		if (inputs.algo !== "unsigned" && finalBin[0] === "1") {
-			decimalRes -= BigInt(2) ** BigInt(inputs.bits * 2);
-		}
+		const last = steps[steps.length - 1];
+		const fullBin = last.A + last.Q;
+		let resDec = BigInt("0b" + fullBin);
+		if (config.algo !== "unsigned" && fullBin[0] === "1")
+			resDec -= 1n << BigInt(b * 2);
 
-		setResults({
+		setData({
 			steps,
-			finalBin,
-			decimalRes: decimalRes.toString(),
-			expected: (BigInt(mVal) * BigInt(qVal)).toString(),
+			fullBin,
+			resDec: resDec.toString(),
+			expected: (mVal * qVal).toString(),
 		});
 	};
 
 	return (
 		<div
 			style={{
-				maxWidth: "900px",
-				margin: "auto",
-				padding: "20px",
-				fontFamily: "system-ui",
+				maxWidth: "1000px",
+				margin: "40px auto",
+				fontFamily: "Segoe UI, sans-serif",
+				padding: "0 20px",
 			}}
 		>
-			<h1>Advanced Binary Multiplier</h1>
+			<h1 style={{ textAlign: "center", color: "#2c3e50" }}>
+				Binary Multiplier Simulator
+			</h1>
 
 			<div
 				style={{
+					background: "#fff",
+					padding: "24px",
+					borderRadius: "12px",
+					boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
 					display: "grid",
-					gridTemplateColumns: "1fr 1fr 1fr",
-					gap: "15px",
-					marginBottom: "20px",
-					padding: "15px",
-					background: "#f9f9f9",
-					borderRadius: "8px",
+					gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+					gap: "20px",
+					marginBottom: "30px",
 				}}
 			>
 				<div>
-					<label>Format</label>
+					<label
+						style={{
+							display: "block",
+							fontWeight: "bold",
+							marginBottom: "8px",
+						}}
+					>
+						Input Format
+					</label>
 					<select
-						style={{ width: "100%" }}
+						style={{ width: "100%", padding: "10px" }}
+						value={config.format}
 						onChange={(e) =>
-							setInputs({ ...inputs, format: e.target.value })
+							setConfig({ ...config, format: e.target.value })
 						}
 					>
-						<option value="decimal">Decimal</option>
+						<option value="decimal">Decimal (Base 10)</option>
 						<option value="unsigned">Unsigned Binary</option>
 						<option value="2s_complement">
 							2's Complement Binary
@@ -135,11 +133,20 @@ const App = () => {
 					</select>
 				</div>
 				<div>
-					<label>Algorithm</label>
+					<label
+						style={{
+							display: "block",
+							fontWeight: "bold",
+							marginBottom: "8px",
+						}}
+					>
+						Algorithm
+					</label>
 					<select
-						style={{ width: "100%" }}
+						style={{ width: "100%", padding: "10px" }}
+						value={config.algo}
 						onChange={(e) =>
-							setInputs({ ...inputs, algo: e.target.value })
+							setConfig({ ...config, algo: e.target.value })
 						}
 					>
 						<option value="booth">
@@ -150,107 +157,190 @@ const App = () => {
 					</select>
 				</div>
 				<div>
-					<label>Bit Size</label>
-					<select
-						style={{ width: "100%" }}
-						value={inputs.bits}
-						onChange={(e) =>
-							setInputs({
-								...inputs,
-								bits: parseInt(e.target.value),
-							})
-						}
+					<label
+						style={{
+							display: "block",
+							fontWeight: "bold",
+							marginBottom: "8px",
+						}}
 					>
-						{[4, 8, 16, 32].map((b) => (
-							<option key={b} value={b}>
-								{b} Bits
-							</option>
-						))}
-					</select>
+						Bit Size (n)
+					</label>
+					<input
+						type="number"
+						style={{
+							width: "100%",
+							padding: "10px",
+							boxSizing: "border-box",
+						}}
+						value={config.bits}
+						onChange={(e) =>
+							setConfig({ ...config, bits: e.target.value })
+						}
+					/>
 				</div>
-				<input
-					placeholder="Multiplicand (M)"
-					value={inputs.m}
-					onChange={(e) =>
-						setInputs({ ...inputs, m: e.target.value })
-					}
-				/>
-				<input
-					placeholder="Multiplier (Q)"
-					value={inputs.q}
-					onChange={(e) =>
-						setInputs({ ...inputs, q: e.target.value })
-					}
-				/>
-				<button
-					onClick={handleCalculate}
-					style={{
-						background: "#007bff",
-						color: "white",
-						border: "none",
-						borderRadius: "4px",
-						cursor: "pointer",
-					}}
-				>
-					Generate Steps
-				</button>
+				<div>
+					<label
+						style={{
+							display: "block",
+							fontWeight: "bold",
+							marginBottom: "8px",
+						}}
+					>
+						Multiplicand (M)
+					</label>
+					<input
+						style={{
+							width: "100%",
+							padding: "10px",
+							boxSizing: "border-box",
+						}}
+						value={config.m}
+						onChange={(e) =>
+							setConfig({ ...config, m: e.target.value })
+						}
+					/>
+				</div>
+				<div>
+					<label
+						style={{
+							display: "block",
+							fontWeight: "bold",
+							marginBottom: "8px",
+						}}
+					>
+						Multiplier (Q)
+					</label>
+					<input
+						style={{
+							width: "100%",
+							padding: "10px",
+							boxSizing: "border-box",
+						}}
+						value={config.q}
+						onChange={(e) =>
+							setConfig({ ...config, q: e.target.value })
+						}
+					/>
+				</div>
+				<div style={{ display: "flex", alignItems: "flex-end" }}>
+					<button
+						onClick={calculate}
+						style={{
+							width: "100%",
+							padding: "12px",
+							background: "#3498db",
+							color: "#fff",
+							border: "none",
+							borderRadius: "6px",
+							cursor: "pointer",
+							fontWeight: "bold",
+						}}
+					>
+						Run Simulation
+					</button>
+				</div>
 			</div>
 
 			{error && (
-				<div style={{ color: "red", marginBottom: "10px" }}>
+				<div
+					style={{
+						background: "#f8d7da",
+						color: "#721c24",
+						padding: "15px",
+						borderRadius: "6px",
+						marginBottom: "20px",
+					}}
+				>
 					{error}
 				</div>
 			)}
 
-			{results && (
-				<>
+			{data && (
+				<div style={{ overflowX: "auto" }}>
 					<table
 						style={{
 							width: "100%",
 							borderCollapse: "collapse",
-							textAlign: "left",
+							background: "#fff",
+							borderRadius: "8px",
+							overflow: "hidden",
+							boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
 						}}
-						border="1"
 					>
-						<thead style={{ background: "#eee" }}>
+						<thead style={{ background: "#34495e", color: "#fff" }}>
 							<tr>
-								<th>Iter</th>
-								<th>Action</th>
-								<th>Accumulator (A)</th>
-								<th>Multiplier (Q)</th>
-								{inputs.algo === "booth" && <th>Q₋₁</th>}
+								<th style={{ padding: "12px" }}>Iter</th>
+								<th style={{ padding: "12px" }}>Step/Action</th>
+								<th style={{ padding: "12px" }}>
+									Accumulator (A)
+								</th>
+								<th style={{ padding: "12px" }}>
+									Multiplier (Q)
+								</th>
+								{config.algo === "booth" && (
+									<th style={{ padding: "12px" }}>Q₋₁</th>
+								)}
 							</tr>
 						</thead>
 						<tbody>
-							{results.steps.map((s, i) => (
-								<tr key={i}>
-									<td style={{ padding: "8px" }}>
-										{s.iteration}
+							{data.steps.map((s, i) => (
+								<tr
+									key={i}
+									style={{
+										borderBottom: "1px solid #eee",
+										background: s.action.includes("Shift")
+											? "#fcfcfc"
+											: "#fff",
+									}}
+								>
+									<td
+										style={{
+											padding: "12px",
+											textAlign: "center",
+										}}
+									>
+										{s.iter}
 									</td>
-									<td style={{ padding: "8px" }}>
+									<td
+										style={{
+											padding: "12px",
+											fontWeight: s.action.includes("=")
+												? "bold"
+												: "normal",
+											color: s.action.includes("=")
+												? "#e67e22"
+												: "#2c3e50",
+										}}
+									>
 										{s.action}
 									</td>
 									<td
 										style={{
+											padding: "12px",
 											fontFamily: "monospace",
-											padding: "8px",
+											fontSize: "1.1em",
+											letterSpacing: "1px",
 										}}
 									>
 										{s.A}
 									</td>
 									<td
 										style={{
+											padding: "12px",
 											fontFamily: "monospace",
-											padding: "8px",
+											fontSize: "1.1em",
+											letterSpacing: "1px",
 										}}
 									>
 										{s.Q}
 									</td>
-									{inputs.algo === "booth" && (
+									{config.algo === "booth" && (
 										<td
 											style={{
+												padding: "12px",
+												textAlign: "center",
 												fontFamily: "monospace",
-												padding: "8px",
 											}}
 										>
 											{s.q_minus_1}
@@ -263,30 +353,59 @@ const App = () => {
 
 					<div
 						style={{
-							marginTop: "20px",
-							padding: "15px",
-							backgroundColor:
-								results.decimalRes === results.expected
-									? "#e6ffed"
-									: "#ffeef0",
-							borderRadius: "8px",
+							marginTop: "30px",
+							padding: "24px",
+							background:
+								data.resDec === data.expected
+									? "#d4edda"
+									: "#f8d7da",
+							borderRadius: "12px",
+							border: "1px solid",
 						}}
 					>
-						<h3>Final Results</h3>
-						<p>
-							<strong>Binary:</strong> {results.finalBin}
-						</p>
-						<p>
-							<strong>Decimal:</strong> {results.decimalRes}
-						</p>
-						<p>
-							<strong>Verification:</strong>{" "}
-							{results.decimalRes === results.expected
-								? "✅ Matches M × Q"
-								: "❌ Discrepancy Found"}
-						</p>
+						<h3 style={{ marginTop: 0 }}>Result Analysis</h3>
+						<div
+							style={{
+								display: "grid",
+								gridTemplateColumns: "1fr 1fr",
+								gap: "20px",
+							}}
+						>
+							<div>
+								<p>
+									<strong>Final Binary (AQ):</strong>{" "}
+									<span style={{ fontFamily: "monospace" }}>
+										{data.fullBin}
+									</span>
+								</p>
+								<p>
+									<strong>Calculated Decimal:</strong>{" "}
+									{data.resDec}
+								</p>
+							</div>
+							<div style={{ textAlign: "right" }}>
+								<p>
+									<strong>Actual M × Q:</strong>{" "}
+									{data.expected}
+								</p>
+								<p
+									style={{
+										fontSize: "1.2em",
+										fontWeight: "bold",
+										color:
+											data.resDec === data.expected
+												? "#155724"
+												: "#721c24",
+									}}
+								>
+									{data.resDec === data.expected
+										? "✅ MATCHED"
+										: "❌ CALCULATION ERROR"}
+								</p>
+							</div>
+						</div>
 					</div>
-				</>
+				</div>
 			)}
 		</div>
 	);
